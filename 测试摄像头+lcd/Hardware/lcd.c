@@ -823,7 +823,7 @@ void LCD_ShowOV7670PIC(uint16_t *Image)
 	uint16_t camw = 160;						//	摄像头输出宽度 QQVGA=160
 	uint16_t startx = (camw - LCD_W) / 2;		//	(160-128)/2 = 16
 
-	LCD_Address_Set(0, 0, LCD_W - 1, 119);		//	开一个 128 x 120 的窗口
+	LCD_Address_Set(0, 0, LCD_W - 1, 119);		//	开一个 128 x 160 的窗口
 
 	for (y = 0; y < 120; y++)
 	{
@@ -838,13 +838,3 @@ void LCD_ShowOV7670PIC(uint16_t *Image)
 	}
 }
 
-//uint16_t LCD_ShowFPS()
-//{
-//	static uint32_t LastTime;
-//	
-//	__disable_irq();
-//	
-//	if (GetSysTick_us()){}
-//	
-//	__enable_irq();
-//}

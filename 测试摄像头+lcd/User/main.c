@@ -4,7 +4,11 @@
 #include "pic.h"
 #include "ov7670.h"
 #include "SCCB.h"
+#include "Serial.h"
+#include "Timer3.h"
 #include "stm32f4xx_conf.h"
+
+uint16_t Camera_FPS = 0;
 
 extern uint16_t QQVGA_Frame[];		//储存原始画面0
 extern uint16_t QQVGA_Frame1[];		//原始画面的位置1
@@ -15,6 +19,8 @@ volatile uint8_t LCD_ShowReady = 0;	//	等第一帧到了再显示
 int main(void)
 {								
 	Delay_Init((uint8_t)(SystemCoreClock / 1000000));
+	uart1_init(115200U);
+	Timer_init();
 
 	/*--------------------------- 第1步：先把 LCD 点亮 ---------------------------*/
 	LCD_Init();
@@ -45,7 +51,7 @@ int main(void)
 	OV7670_GetPicture();
 
 	LCD_Fill(0, 0, LCD_W, LCD_H, BLACK);
-
+	
 	while(1)
 	{
 		/*	1. 有新帧就刷屏	*/
@@ -53,6 +59,7 @@ int main(void)
 		{
 			LCD_ShowReady = 0;
 			LCD_ShowOV7670PIC(Read_Frame);
+			Camera_FPS++;
 		}
 
 //		/*	2. 统计 DCMI 上溢(OVR)：一旦上溢，DCMI 硬件会自动停掉 CAPTURE，
@@ -102,7 +109,22 @@ void DMA2_Stream1_IRQHandler(void)
 			Read_Frame = QQVGA_Frame1;		//	缓冲区1 可以读了
 		}
 		LCD_ShowReady = 1;
-
 		DMA_ClearITPendingBit(DMA2_Stream1, DMA_IT_TCIF1);	//	清中断标志
 	}
+}
+
+void TIM3_IRQHandler(void)
+{
+	static uint16_t TIM3_Count = 0;
+	
+	if(TIM_GetITStatus(TIM3, TIM_IT_Update) == SET)
+	{
+		if (++TIM3_Count >= 1000)
+		{
+			printf("%d\r\n",Camera_FPS);
+			Camera_FPS = 0;
+			TIM3_Count = 0;
+		}
+	}
+	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 }

@@ -40,3 +40,6 @@
 .\objects\main.o: .\Hardware\pic.h
 .\objects\main.o: .\Hardware\ov7670.h
 .\objects\main.o: .\Hardware\SCCB.h
+.\objects\main.o: .\Hardware\Serial.h
+.\objects\main.o: D:\KEIL\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\main.o: .\Hardware\Timer3.h
