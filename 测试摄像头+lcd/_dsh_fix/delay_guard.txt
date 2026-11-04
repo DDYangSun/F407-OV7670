@@ -1,3 +1,0 @@
-	/* fac_us 为 0 说明整个工程没人调用过 Delay_Init()，这里自动补上，
-	   否则所有 Delay_us()/Delay_ms() 都会变成空操作（SCCB 时序直接失效） */
-	if (fac_us == 0) { Delay_Init((uint8_t)(SystemCoreClock / 1000000)); }
