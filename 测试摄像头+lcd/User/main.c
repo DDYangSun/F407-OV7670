@@ -76,7 +76,7 @@ void TIM3_IRQHandler(void)
 	{
 		if (++TIM3_Count >= 1000)
 		{
-			printf("FPS=%d  Top=%d(%d)  Top2=%d(%d)  Valley=%d  Otsu=%d\r\n",Camera_FPS,TopPosition,TopNumber,Top2Position,Top2Number,ValleyPos,OtsuPos);
+//			printf("FPS=%d  Top=%d(%d)  Top2=%d(%d)  Valley=%d  Otsu=%d\r\n",Camera_FPS,TopPosition,TopNumber,Top2Position,Top2Number,ValleyPos,OtsuPos);
 			Camera_FPS = 0;
 			TIM3_Count = 0;
 		}

@@ -42,7 +42,7 @@ F (.\Start\system_stm32f4xx.h)(0x6AE9FEE5)()
 F (.\Start\core_cmFunc.h)(0x6AE9FEE5)()
 F (.\Start\core_cmInstr.h)(0x6AE9FEE5)()
 F (.\Start\core_cmSimd.h)(0x6AE9FEE5)()
-F (.\User\main.c)(0x6AEB397E)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\User\main.c)(0x6AEB43DB)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
 I (.\Start\core_cm4.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -1942,7 +1942,7 @@ I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (Hardware\Serial.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdio.h)(0x588B8344)
 F (.\Hardware\Serial.h)(0x6AE9FEE5)()
-F (.\Hardware\ImageBinaryzation.c)(0x6AEB39DD)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\imagebinaryzation.o --omf_browse .\objects\imagebinaryzation.crf --depend .\objects\imagebinaryzation.d)
+F (.\Hardware\ImageBinaryzation.c)(0x6AEB43A7)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\imagebinaryzation.o --omf_browse .\objects\imagebinaryzation.crf --depend .\objects\imagebinaryzation.d)
 I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
 I (.\Start\core_cm4.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -1978,5 +1978,4 @@ I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
-I (Hardware\ImageBinaryzation.h)(0x6AEB397E)
 F (.\Hardware\ImageBinaryzation.h)(0x6AEB397E)()
