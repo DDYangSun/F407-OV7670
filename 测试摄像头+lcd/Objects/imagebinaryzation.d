@@ -35,3 +35,4 @@
 .\objects\imagebinaryzation.o: .\Library\stm32f4xx_dcmi.h
 .\objects\imagebinaryzation.o: .\Library\stm32f4xx_fsmc.h
 .\objects\imagebinaryzation.o: D:\KEIL\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\imagebinaryzation.o: Hardware\ImageBinaryzation.h

@@ -1,0 +1,223 @@
+#include "stm32f4xx.h"
+#include "stdlib.h"
+#include "ImageBinaryzation.h"
+
+/*	二值化阈值的来源：
+		0 = 峰谷法（你自己写的那套：找最高峰、第二高峰，取中间的谷）
+		1 = 大津法（Otsu，按"类间方差最大"自动定阈值，图像不是明显双峰时更稳）
+	两种方法每帧都会算出来，串口每秒打印一次，可以亲眼对比后再选。		*/
+#define USE_OTSU_THRESHOLD	1
+
+uint8_t  TopPosition,Top2Position,ValleyPos,OtsuPos;
+uint16_t TopNumber,Top2Number,ValleyNum;
+
+//RGB565（16bit色彩）转8位灰度（亮度）
+void ChangeGray(uint16_t *RGB565Image,uint16_t Length,uint8_t *GrayImage)
+{
+	uint8_t r,g,b;
+
+	uint16_t i;
+	for (i = 0;i < Length;i++)
+	{
+		r = (RGB565Image[i] >> 11) & 0x1F;		//	0~31
+		g = (RGB565Image[i] >> 5) & 0x3F;		//	0~63
+		b = (RGB565Image[i]) & 0x1F;			//	0~31
+
+		/*	5/6 位先扩展成 8 位（低位复制高位），再套 0.299/0.587/0.114 的整数系数，
+			否则灰度只能到 49，直方图分辨率浪费一大半						*/
+		GrayImage[i] = (uint8_t)((((r << 3) | (r >> 2)) * 77
+								+ ((g << 2) | (g >> 4)) * 150
+								+ ((b << 3) | (b >> 2)) * 29) >> 8);
+	}
+}
+
+//制作像素值数量图表
+void DrawPixelChart(uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum)
+{
+	uint16_t i;
+
+	for(i = 0;i < 256;i++)		//每帧统计前必须先清零，否则直方图会一帧帧累加，uint16 几帧就溢出
+	{
+		PixelValueNum[i] = 0;
+	}
+
+	for(i = 0;i < Length;i++)
+	{
+		PixelValueNum[*GrayImage]++;
+		GrayImage++;
+	}
+}
+
+//计算最高峰的位置和数量
+void CalTop_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *TopPosition,uint16_t *TopNumber)
+{
+	uint8_t TopPosition_Temp = 0;
+	uint16_t TopNumber_Temp = 0;
+
+	uint16_t i;
+	for (i = 0;i < Length;i++)
+	{
+		if (PixelValueNum[i] > TopNumber_Temp)
+		{
+			TopPosition_Temp = (uint8_t)i;
+			TopNumber_Temp = PixelValueNum[i];
+		}
+	}
+
+	*TopPosition = TopPosition_Temp;
+	*TopNumber = TopNumber_Temp;
+}
+
+/*	计算第二高峰的位置和数量
+	原版的三个问题：
+	  1) DifValue 用 uint16 存 "峰高 - 最高峰高"，是负数会下溢成 6 万多，
+	     之后条件几乎恒成立，第二高峰实际上变成了"最后一个候选"；
+	  2) 找峰的循环 i 从 0 到 Length-1，会读 PixelValueNum[-1] 和 [256]，越界；
+	  3) 空桶（数量为 0）连成的平台也全被当成峰，第二高峰经常落到空桶上。
+	这里改成：只在下标 1~254 内找真正的局部极大值，跳过人数很少的桶，
+	并排除最高峰本身，取剩下里面最高的那个。						*/
+void CalTop2_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *Top2Position,uint16_t *Top2Number,uint16_t *TopNumber)
+{
+	uint8_t  Top2Position_Temp = 0;		//必须初始化，否则没有第二峰时是栈上的随机值
+	uint16_t Top2Number_Temp   = 0;
+	uint16_t MinPeak = (uint16_t)(Length / 200);	//低于这个数量不算峰（19200 像素时约 96 个）
+	uint16_t i;
+
+	for (i = 1;i < Length - 1;i++)		//i-1、i+1 都不能越界
+	{
+		if (PixelValueNum[i] < *TopNumber			//不是最高峰本身
+			&& PixelValueNum[i] > MinPeak			//不是空桶/噪点
+			&& PixelValueNum[i] >= PixelValueNum[i-1]
+			&& PixelValueNum[i] >= PixelValueNum[i+1]
+			&& PixelValueNum[i] > Top2Number_Temp)	//是这些峰里最高的
+		{
+			Top2Position_Temp = (uint8_t)i;
+			Top2Number_Temp   = PixelValueNum[i];
+		}
+	}
+
+	*Top2Position = Top2Position_Temp;
+	*Top2Number	  = Top2Number_Temp;
+}
+
+/*	从两个山峰之间找到山谷的位置
+	原版：当第二高峰和最高峰重合/相邻时（例如全图只有一种灰度），
+	循环只走一次，ValleyPos_Temp 保持初值 0，阈值直接变成 0，画面全白。
+	这里先把 lo/hi 规范化，并在"两峰太近、根本没有谷"时给出兜底值。		*/
+void CalValley_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *ValleyPos,uint16_t *ValleyNum,
+						uint8_t *TopPosition,uint8_t *Top2Position)
+{
+	uint8_t  lo,hi,ValleyPos_Temp;
+	uint16_t ValleyNum_Temp;
+	uint16_t i;
+
+	if (*TopPosition < *Top2Position)	{ lo = *TopPosition; hi = *Top2Position; }
+	else								{ lo = *Top2Position; hi = *TopPosition; }
+
+	ValleyPos_Temp = lo;
+	ValleyNum_Temp = PixelValueNum[lo];
+
+	for (i = lo;i <= hi;i++)
+	{
+		if (PixelValueNum[i] < ValleyNum_Temp)
+		{
+			ValleyNum_Temp = PixelValueNum[i];
+			ValleyPos_Temp = (uint8_t)i;
+		}
+	}
+
+	if ((uint8_t)(hi - lo) < 2)			//两峰重合或紧挨着，没有真正的谷
+	{
+		ValleyPos_Temp = (uint8_t)((lo + hi) / 2);
+		ValleyNum_Temp = PixelValueNum[ValleyPos_Temp];
+	}
+
+	*ValleyPos = ValleyPos_Temp;
+	*ValleyNum = ValleyNum_Temp;
+}
+
+/*	大津法（Otsu）：遍历 0~255 每个阈值，算"类间方差"，
+	方差最大的那个阈值就是最能把画面分成两堆的位置。
+	直接用已经统计好的直方图，只有 256 次循环，开销可以忽略。		*/
+uint8_t Otsu_Threshold(uint16_t *PixelValueNum,uint16_t Length)
+{
+	uint32_t total = 0,wB = 0,wF;
+	uint64_t sum = 0,sumB = 0;
+	int64_t  mB,mF,d,var,maxVar = -1;
+	uint8_t  best = 0;
+	uint16_t i;
+
+	for (i = 0;i < Length;i++)
+	{
+		total += PixelValueNum[i];
+		sum   += (uint64_t)i * PixelValueNum[i];
+	}
+	if (total == 0)
+	{
+		return 128;
+	}
+
+	for (i = 0;i < Length;i++)
+	{
+		wB += PixelValueNum[i];
+		if (wB == 0)	continue;
+
+		wF = total - wB;
+		if (wF == 0)	break;
+
+		sumB += (uint64_t)i * PixelValueNum[i];
+		mB = (int64_t)(sumB / wB);
+		mF = (int64_t)((sum - sumB) / wF);
+		d  = mB - mF;
+		var = (int64_t)wB * (int64_t)wF * d * d;		//必须 64 位，int32 会溢出
+
+		if (var > maxVar)
+		{
+			maxVar = var;
+			best = (uint8_t)i;
+		}
+	}
+	return best;
+}
+
+//二值化
+void ImageBinaryzation(uint8_t *GrayImage,uint16_t Length,uint8_t *Threshold)
+{
+	uint16_t i;
+	for (i = 0;i < Length;i++)
+	{
+		if (GrayImage[i] < *Threshold)
+			GrayImage[i] = 0;		//黑色
+		else
+			GrayImage[i] = 255;		//白色
+	}
+}
+
+/*
+	param0:RGB565数组
+	param1:灰度值数组
+	param2:RGB565数组和灰度值数组长度，与分辨率有关
+	param3:像素值数量图表数组
+	param4:像素值数量图表数组长度
+*/
+void ImageProcess(uint16_t *RGB565Image,uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
+{
+	uint8_t threshold;
+
+	ChangeGray(RGB565Image,Length,GrayImage);
+	DrawPixelChart(GrayImage,Length,PixelValueNum);
+
+	CalTop_PosNum (PixelValueNum,Length1,&TopPosition ,&TopNumber);
+	CalTop2_PosNum(PixelValueNum,Length1,&Top2Position,&Top2Number,&TopNumber);
+	CalValley_PosNum(PixelValueNum,Length1,&ValleyPos,&ValleyNum,&TopPosition,&Top2Position);
+
+	OtsuPos = Otsu_Threshold(PixelValueNum,Length1);
+
+#if USE_OTSU_THRESHOLD
+	threshold = OtsuPos;			//大津法
+#else
+	threshold = ValleyPos;			//峰谷法
+#endif
+
+	ImageBinaryzation(GrayImage,Length,&threshold);
+}

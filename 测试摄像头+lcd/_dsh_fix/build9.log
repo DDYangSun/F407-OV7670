@@ -1,0 +1,9 @@
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\KEIL\ARM\ARMCC\Bin'
+Build target 'Target 1'
+compiling ImageBinaryzation.c...
+Hardware\ImageBinaryzation.c(27): error:  #20: identifier "i" is undefined
+  	for(i = 0;i < 256;i++)
+Hardware\ImageBinaryzation.c: 0 warnings, 1 error
+".\Objects\Project.axf" - 1 Error(s), 0 Warning(s).
+Target not created.
+Build Time Elapsed:  00:00:01
