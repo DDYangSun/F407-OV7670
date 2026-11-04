@@ -1,0 +1,121 @@
+#include "stm32f4xx.h"
+#include "Delay.h"
+#include "lcd.h"
+#include "pic.h"
+#include "ov7670.h"
+#include "SCCB.h"
+#include "stm32f4xx_conf.h"
+
+extern uint16_t QQVGA_Frame[];		//储存原始画面0
+extern uint16_t QQVGA_Frame1[];		//原始画面的位置1
+
+uint16_t *Read_Frame = QQVGA_Frame;
+volatile uint8_t LCD_ShowReady = 0;	//	等第一帧到了再显示
+
+/*	把一字节按两位十六进制显示出来，用于把读到的 ID 直接打到屏上	*/
+static void LCD_ShowHex2(u16 x, u16 y, uint8_t v, u16 fc, u16 bc)
+{
+	char s[3];
+	const char *hex = "0123456789ABCDEF";
+
+	s[0] = hex[(v >> 4) & 0x0F];
+	s[1] = hex[v & 0x0F];
+	s[2] = '\0';
+	LCD_ShowString(x, y, (const u8 *)s, fc, bc, 16, 0);
+}
+
+int main(void)
+{
+	/*--------------------------- 第0步：延时函数初始化 --------------------------
+		原来整个工程从来没有调用过 Delay_Init()，fac_us 一直是 0，
+		所以所有 Delay_us() / Delay_ms() 全部是空操作（直接返回）。
+		后果：SCCB 每一位之间没有任何延时，SCL 跑到 1~2MHz，远超 OV7670
+		      SCCB 的 400kHz 上限，摄像头根本不应答，读 ID 必然失败。
+	---------------------------------------------------------------------------*/
+	Delay_Init((uint8_t)(SystemCoreClock / 1000000));	//	168MHz -> 168
+
+	/*--------------------------- 第1步：先把 LCD 点亮 ---------------------------*/
+	LCD_Init();
+	LCD_Fill(0, 0, LCD_W, LCD_H, WHITE);
+
+	/*--------------------------- 第2步：配置 DCMI 用到的 GPIO ------------------*/
+	OV7670_DCMI_Init();
+
+	/*--------------------------- 第3步：给时钟 + 硬件复位 ----------------------*/
+	OV7670_MCLK_start();		//	PA8 输出 8MHz XCLK
+	Delay_ms(10);
+	OV7670_Rest();				//	PA1=PWDN(低=工作)，PA3=RST
+	Delay_ms(20);				//	复位后等摄像头内部初始化
+
+	/*--------------------------- 第4步：SCCB 自检 ------------------------------*/
+	SCCB_Init();				//	SCL=PB10，SDA=PB11
+	Delay_ms(10);
+
+	{
+		uint8_t pid, ver, line;
+
+		line = SCCB_TestLine();		//	0=正常 1=SDA一直低 2=SDA一直高
+		pid  = SCCB_ReadReg(0x0A);	//	OV7670 的 PID 固定 0x76
+		ver  = SCCB_ReadReg(0x0B);	//	OV7670 的 VER 固定 0x73
+
+		if ((line != 0) || (pid != 0x76) || (ver != 0x73))
+		{
+			/*	把实测值直接显示出来，下次就不用猜了：
+				PID=76 VER=73 LINE=0 才是正常
+				PID=FF VER=FF         —— SDA 没被拉低过，从机没应答（多半是没通信上）
+				LINE=1                —— SDA 一直被拉低：没上拉电阻 / 短路 / 模块没供电
+				LINE=2                —— SDA 拉不低：引脚接错 / 没焊通 / 没共地			*/
+			LCD_Fill(0, 0, LCD_W, LCD_H, WHITE);
+			LCD_ShowString(0,  0, (const u8 *)"SCCB ERROR", RED, WHITE, 16, 0);
+			LCD_ShowString(0, 20, (const u8 *)"PID=", BLACK, WHITE, 16, 0);
+			LCD_ShowHex2(32, 20, pid, BLACK, WHITE);
+			LCD_ShowString(0, 40, (const u8 *)"VER=", BLACK, WHITE, 16, 0);
+			LCD_ShowHex2(32, 40, ver, BLACK, WHITE);
+			LCD_ShowString(0, 60, (const u8 *)"LINE=", BLACK, WHITE, 16, 0);
+			LCD_ShowHex2(40, 60, line, BLACK, WHITE);
+			LCD_ShowString(0, 90, (const u8 *)"SCL=PB10", BLACK, WHITE, 16, 0);
+			LCD_ShowString(0, 110, (const u8 *)"SDA=PB11", BLACK, WHITE, 16, 0);
+			while (1);
+		}
+	}
+
+	/*--------------------------- 第5步：写寄存器表（RGB565 + QVGA）-------------*/
+	OV7670_RegConfig();
+
+	/*--------------------------- 第6步：设置采集窗口 ---------------------------*/
+	OV7670_Window_Set(160, 120, 160, 120);
+
+	/*--------------------------- 第7步：DMA + DCMI 开始采集 -------------------*/
+	OV7670DMA_DCMItoSRAM();		//	先把 DMA2_Stream1 配好：DCMI -> QQVGA_Frame
+	OV7670_GetPicture();		//	再同时打开 DMA 和 DCMI
+
+	LCD_Fill(0, 0, LCD_W, LCD_H, BLACK);
+
+	while(1)
+	{
+		if (LCD_ShowReady)
+		{
+			LCD_ShowReady = 0;
+			LCD_ShowOV7670PIC(Read_Frame);
+		}
+	}
+}
+
+
+void DMA2_Stream1_IRQHandler(void)
+{
+	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1) == SET)	//	DMA 传输完成
+	{
+		if (DMA_GetCurrentMemoryTarget(DMA2_Stream1) == SET)	//	CT=1：接下来写缓冲区1，说明缓冲区0已满
+		{
+			Read_Frame = QQVGA_Frame;		//	缓冲区0 可以读了
+		}
+		else
+		{
+			Read_Frame = QQVGA_Frame1;		//	缓冲区1 可以读了
+		}
+		LCD_ShowReady = 1;
+
+		DMA_ClearITPendingBit(DMA2_Stream1, DMA_IT_TCIF1);	//	清中断标志
+	}
+}

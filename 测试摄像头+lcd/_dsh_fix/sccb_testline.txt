@@ -1,0 +1,31 @@
+
+/*	SCCB 连线自检：
+	返回 0 = 正常（释放 SDA 时为高，主动拉低时为低）
+	     1 = 释放 SDA 后仍然是低电平 —— 没有上拉电阻 / 线短路到地 / 摄像头模块没供电
+	     2 = 主动拉低后仍然是高电平 —— 引脚接错 / 焊点没通 / 没和板子共地
+	在上电读 ID 之前先跑一遍，可以把"是通信时序问题"还是"是硬件连线问题"分开。	*/
+uint8_t SCCB_TestLine(void)
+{
+	uint8_t a, b;
+
+	SCCB_W_SDA(1);
+	Delay_us(50);
+	a = SCCB_R_SDA();
+
+	SCCB_W_SDA(0);
+	Delay_us(50);
+	b = SCCB_R_SDA();
+
+	SCCB_W_SDA(1);
+	Delay_us(50);
+
+	if (a == 0)
+	{
+		return 1;
+	}
+	if (b == 1)
+	{
+		return 2;
+	}
+	return 0;
+}
