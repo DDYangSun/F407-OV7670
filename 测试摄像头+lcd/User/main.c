@@ -9,21 +9,28 @@
 #include "ImageBinaryzation.h"
 #include "stm32f4xx_conf.h"
 
+/*	1 = ÏÔÊ¾ 8 Î»»Ò¶ÈÍ¼£¨ÄÜ¿´Çå»­ÃæÃ÷°µ¡¢ÅÐ¶ÏãÐÖµÇÐµÃºÏ²»ºÏÊÊ£©
+	0 = ÏÔÊ¾¶þÖµÍ¼£¨´¿ºÚ/´¿°×£©
+	Á½ÖÖ¶¼»áÏÈ×ßÒ»±é ImageAnalyze()£¬ãÐÖµÕÕ³£Ëã²¢´òÓ¡µ½´®¿Ú¡£		*/
+#define SHOW_GRAY_IMAGE		1
+
 uint16_t Camera_FPS = 0;
 
-extern uint16_t QQVGA_Frame[];		//ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½0
-extern uint16_t QQVGA_Frame1[];		//Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿?
+extern uint16_t QQVGA_Frame[];		//´¢´æÔ­Ê¼»­Ãæ0
+extern uint16_t QQVGA_Frame1[];		//Ô­Ê¼»­ÃæµÄÎ»ÖÃ1
 
 uint8_t GrayImage[120 * 160] = {0};
 uint16_t PixelValueNum[256] = {0};
 
 uint16_t *Read_Frame = QQVGA_Frame;
-volatile uint8_t LCD_ShowReady = 0;	//ï¿½Èµï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
+volatile uint8_t LCD_ShowReady = 0;	//µÈµÚÒ»Ö¡µ½ÁËÔÙÏÔÊ¾
 
-uint8_t NowReadNum;			//ï¿½ï¿½ï¿½Ú¶ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½RGB565ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+uint8_t NowReadNum;			//ÏÖÔÚ¶ÁÈ¡ÄÄÒ»¸öRGB565µÄÊý×é
 
 int main(void)
-{								
+{
+	uint8_t threshold;
+
 	Delay_Init((uint8_t)(SystemCoreClock / 1000000));
 	uart1_init(115200U);
 	Timer_init();
@@ -37,12 +44,21 @@ int main(void)
 		{
 			LCD_ShowReady = 0;
 
+			/*	Ö»×ö·ÖÎö£º»Ò¶È»¯ + Ö±·½Í¼ + ·å¹È + ´ó½ò£¬·µ»ØÕâÒ»Ö¡µÄãÐÖµ¡£
+				×¢Òâ ImageAnalyze() ²»»á¸Ä GrayImage µÄÏñËØÖµ£¬
+				ËùÒÔÕâÊ±»º³åÇøÀï»¹ÊÇÍêÕûµÄ 8 Î»»Ò¶ÈÍ¼¡£				*/
 			if (NowReadNum == 0)
-				ImageProcess(QQVGA_Frame,GrayImage,120 * 160,PixelValueNum,256);
+				threshold = ImageAnalyze(QQVGA_Frame,GrayImage,120 * 160,PixelValueNum,256);
 			else
-				ImageProcess(QQVGA_Frame1,GrayImage,120 * 160,PixelValueNum,256);
+				threshold = ImageAnalyze(QQVGA_Frame1,GrayImage,120 * 160,PixelValueNum,256);
 
-			LCD_ShowOV7670GrayPIC(GrayImage);
+#if SHOW_GRAY_IMAGE
+			LCD_ShowOV7670GrayPIC(GrayImage);					//ÏÈÏÔÊ¾»Ò¶ÈÍ¼
+			ImageBinarize(GrayImage,120 * 160,threshold);		//ÐèÒª¶þÖµ½á¹ûÊ±ÔÙ¾ÍµØ¶þÖµ»¯
+#else
+			ImageBinarize(GrayImage,120 * 160,threshold);		//ÏÈ¶þÖµ»¯
+			LCD_ShowOV7670GrayPIC(GrayImage);					//ÔÙÏÔÊ¾¶þÖµÍ¼
+#endif
 			Camera_FPS++;
 		}
 	}
@@ -51,32 +67,32 @@ int main(void)
 
 void DMA2_Stream1_IRQHandler(void)
 {
-	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1) == SET)	//	DMA ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1) == SET)	//	DMA ´«ÊäÍê³É
 	{
-		if (DMA_GetCurrentMemoryTarget(DMA2_Stream1) == SET)	//	CT=1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½
+		if (DMA_GetCurrentMemoryTarget(DMA2_Stream1) == SET)	//	CT=1£º½ÓÏÂÀ´Ð´»º³åÇø1£¬ËµÃ÷»º³åÇø0ÒÑÂú
 		{
-			Read_Frame = QQVGA_Frame;		//	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0 ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½
+			Read_Frame = QQVGA_Frame;		//	»º³åÇø0 ¿ÉÒÔ¶ÁÁË
 			NowReadNum = 0;
 		}
 		else
 		{
-			Read_Frame = QQVGA_Frame1;		//	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1 ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½
+			Read_Frame = QQVGA_Frame1;		//	»º³åÇø1 ¿ÉÒÔ¶ÁÁË
 			NowReadNum = 1;
 		}
 		LCD_ShowReady = 1;
-		DMA_ClearITPendingBit(DMA2_Stream1, DMA_IT_TCIF1);	//	ï¿½ï¿½ï¿½Ð¶Ï±ï¿½Ö¾
+		DMA_ClearITPendingBit(DMA2_Stream1, DMA_IT_TCIF1);	//	ÇåÖÐ¶Ï±êÖ¾
 	}
 }
 
 void TIM3_IRQHandler(void)
 {
 	static uint16_t TIM3_Count = 0;
-	
+
 	if(TIM_GetITStatus(TIM3, TIM_IT_Update) == SET)
 	{
 		if (++TIM3_Count >= 1000)
 		{
-//			printf("FPS=%d  Top=%d(%d)  Top2=%d(%d)  Valley=%d  Otsu=%d\r\n",Camera_FPS,TopPosition,TopNumber,Top2Position,Top2Number,ValleyPos,OtsuPos);
+			printf("FPS=%d  Top=%d(%d)  Top2=%d(%d)  Valley=%d  Otsu=%d\r\n",Camera_FPS,TopPosition,TopNumber,Top2Position,Top2Number,ValleyPos,OtsuPos);
 			Camera_FPS = 0;
 			TIM3_Count = 0;
 		}
