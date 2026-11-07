@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "STM32F407VET6 (Keil MDK)",
+            "includePath": [
+                "${workspaceFolder}/User",
+                "${workspaceFolder}/Library",
+                "${workspaceFolder}/Start",
+                "${workspaceFolder}/System",
+                "${workspaceFolder}/Hardware",
+                "D:/KEIL/ARM/ARMCC/include",
+                "D:/KEIL/ARM/ARMCC/include/rw"
+            ],
+            "defines": [
+                "STM32F407xx",
+                "STM32F40_41xxx",
+                "USE_STDPERIPH_DRIVER",
+                "__CC_ARM"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "windows-msvc-x64",
+            "compilerPath": "",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/User",
+                    "${workspaceFolder}/Library",
+                    "${workspaceFolder}/Start",
+                    "${workspaceFolder}/System",
+                    "${workspaceFolder}/Hardware",
+                    "D:/KEIL/ARM/ARMCC/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        }
+    ],
+    "version": 4
+}

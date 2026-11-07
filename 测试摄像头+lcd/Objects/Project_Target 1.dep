@@ -42,7 +42,7 @@ F (.\Start\system_stm32f4xx.h)(0x6AE9FEE5)()
 F (.\Start\core_cmFunc.h)(0x6AE9FEE5)()
 F (.\Start\core_cmInstr.h)(0x6AE9FEE5)()
 F (.\Start\core_cmSimd.h)(0x6AE9FEE5)()
-F (.\User\main.c)(0x6AED655D)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\User\main.c)(0x6AEE98D7)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
 I (.\Start\core_cm4.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -78,7 +78,7 @@ I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (.\System\Delay.h)(0x6AE9FEE5)
-I (.\Hardware\lcd.h)(0x6AEB385A)
+I (.\Hardware\lcd.h)(0x6AEEC6EC)
 I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (.\Hardware\pic.h)(0x6AE9FEE5)
 I (.\Hardware\ov7670.h)(0x6AEB13C7)
@@ -86,7 +86,8 @@ I (.\Hardware\SCCB.h)(0x6AE9FEE5)
 I (.\Hardware\Serial.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdio.h)(0x588B8344)
 I (.\Hardware\Timer3.h)(0x6AE9FEE5)
-I (.\Hardware\ImageBinaryzation.h)(0x6AED6571)
+I (.\Hardware\ImageBinaryzation.h)(0x6AEE0294)
+I (.\Hardware\ImageElement.h)(0x6AEEC564)
 F (.\User\stm32f4xx_conf.h)(0x6AE9FEE5)()
 F (.\User\stm32f4xx_it.c)(0x6AE9FEE5)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f4xx_it.o --omf_browse .\objects\stm32f4xx_it.crf --depend .\objects\stm32f4xx_it.d)
 I (User\stm32f4xx_it.h)(0x6AE9FEE5)
@@ -1748,8 +1749,8 @@ I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 F (.\Hardware\LED.h)(0x6AE9FEE5)()
-F (.\Hardware\lcd.c)(0x6AEB382E)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\lcd.o --omf_browse .\objects\lcd.crf --depend .\objects\lcd.d)
-I (Hardware\lcd.h)(0x6AEB385A)
+F (.\Hardware\lcd.c)(0x6AEEC724)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\lcd.o --omf_browse .\objects\lcd.crf --depend .\objects\lcd.d)
+I (Hardware\lcd.h)(0x6AEEC6EC)
 I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
 I (.\Start\core_cm4.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -1787,7 +1788,8 @@ I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (Hardware\lcdfont.h)(0x6AE9FEE5)
 I (.\System\Delay.h)(0x6AE9FEE5)
-F (.\Hardware\lcd.h)(0x6AEB385A)()
+I (Hardware\ImageElement.h)(0x6AEEC564)
+F (.\Hardware\lcd.h)(0x6AEEC6EC)()
 F (.\Hardware\lcdfont.h)(0x6AE9FEE5)()
 F (.\Hardware\pic.h)(0x6AE9FEE5)()
 F (.\Hardware\OV7670.c)(0x6AEB13C0)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\ov7670.o --omf_browse .\objects\ov7670.crf --depend .\objects\ov7670.d)
@@ -1901,7 +1903,7 @@ I (.\Library\stm32f4xx_can.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
-I (Hardware\lcd.h)(0x6AEB385A)
+I (Hardware\lcd.h)(0x6AEEC6EC)
 I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 F (.\Hardware\Timer3.h)(0x6AE9FEE5)()
 F (.\Hardware\Serial.c)(0x6AE9FEE5)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\serial.o --omf_browse .\objects\serial.crf --depend .\objects\serial.d)
@@ -1942,7 +1944,7 @@ I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (Hardware\Serial.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdio.h)(0x588B8344)
 F (.\Hardware\Serial.h)(0x6AE9FEE5)()
-F (.\Hardware\ImageBinaryzation.c)(0x6AED655D)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\imagebinaryzation.o --omf_browse .\objects\imagebinaryzation.crf --depend .\objects\imagebinaryzation.d)
+F (.\Hardware\ImageBinaryzation.c)(0x6AEE147F)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\imagebinaryzation.o --omf_browse .\objects\imagebinaryzation.crf --depend .\objects\imagebinaryzation.d)
 I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
 I (.\Start\core_cm4.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -1978,5 +1980,44 @@ I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
 I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
 I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
-I (Hardware\ImageBinaryzation.h)(0x6AED6571)
-F (.\Hardware\ImageBinaryzation.h)(0x6AED6571)()
+I (Hardware\ImageBinaryzation.h)(0x6AEE0294)
+I (D:\KEIL\ARM\ARMCC\include\math.h)(0x588B8344)
+F (.\Hardware\ImageBinaryzation.h)(0x6AEE0294)()
+F (.\Hardware\ImageElement.c)(0x6AEECA5C)(--c99 -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I .\User -I .\Library -I .\System -I .\Hardware -I .\Start-I.\RTE\_Target_1-ID:\KEIL\ARM\PACK\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include-ID:\KEIL\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\objects\imageelement.o --omf_browse .\objects\imageelement.crf --depend .\objects\imageelement.d)
+I (.\Start\stm32f4xx.h)(0x6AE9FEE5)
+I (.\Start\core_cm4.h)(0x6AE9FEE5)
+I (D:\KEIL\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (.\Start\core_cmInstr.h)(0x6AE9FEE5)
+I (.\Start\core_cmFunc.h)(0x6AE9FEE5)
+I (.\Start\core_cmSimd.h)(0x6AE9FEE5)
+I (.\Start\system_stm32f4xx.h)(0x6AE9FEE5)
+I (.\User\stm32f4xx_conf.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_adc.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_crc.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_dbgmcu.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_dma.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_exti.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_flash.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_gpio.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_i2c.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_iwdg.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_pwr.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_rcc.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_rtc.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_sdio.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_spi.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_syscfg.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_tim.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_usart.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_wwdg.h)(0x6AE9FEE5)
+I (.\Library\misc.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_cryp.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_hash.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_rng.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_can.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_dac.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_dcmi.h)(0x6AE9FEE5)
+I (.\Library\stm32f4xx_fsmc.h)(0x6AE9FEE5)
+I (Hardware\ImageElement.h)(0x6AEEC564)
+I (D:\KEIL\ARM\ARMCC\include\stdlib.h)(0x588B8344)
+F (.\Hardware\ImageElement.h)(0x6AEEC564)()

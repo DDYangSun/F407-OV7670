@@ -1,0 +1,20 @@
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\KEIL\ARM\ARMCC\Bin'
+Build target 'Target 1'
+compiling ImageBinaryzation.c...
+Hardware\ImageBinaryzation.c(246): error:  #18: expected a ")"
+  void ImageProcess(uint16_t *RGB565Image,uint8_t *Gray Image,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
+Hardware\ImageBinaryzation.c(246): error:  #147-D: declaration is incompatible with "void ImageProcess(uint16_t *, uint8_t *, uint16_t, uint16_t *, uint16_t)"  (declared at line 19 of "Hardware\ImageBinaryzation.h")
+  void ImageProcess(uint16_t *RGB565Image,uint8_t *Gray Image,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
+Hardware\ImageBinaryzation.c(250): error:  #20: identifier "Length" is undefined
+  	ChangeGray(RGB565Image,Length,GrayImage);
+Hardware\ImageBinaryzation.c(250): error:  #20: identifier "GrayImage" is undefined
+  	ChangeGray(RGB565Image,Length,GrayImage);
+Hardware\ImageBinaryzation.c(251): error:  #20: identifier "PixelValueNum" is undefined
+  	DrawPixelChart(GrayImage,Length,PixelValueNum);
+Hardware\ImageBinaryzation.c(253): error:  #20: identifier "Length1" is undefined
+  	CalTop_PosNum (PixelValueNum,Length1,&TopPosition ,&TopNumber);
+Hardware\ImageBinaryzation.c: 0 warnings, 6 errors
+compiling main.c...
+".\Objects\Project.axf" - 6 Error(s), 0 Warning(s).
+Target not created.
+Build Time Elapsed:  00:00:02

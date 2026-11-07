@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include "lcdfont.h"  	 
 #include "Delay.h"
+#include "ImageElement.h"
 #include "stm32f4xx.h"  
 
 /**********************BEGIN***********************/
@@ -821,13 +822,13 @@ void LCD_ShowOV7670PIC(uint16_t *Image)
 	uint16_t x, y;
 	uint16_t p;
 	uint16_t camw = 160;						//	摄像头输出宽度 QQVGA=160
-	uint16_t startx = (camw - LCD_W) / 2;		//	(160-128)/2 = 16			//这里不是用作消影，而是用作横竖屏的画面居中
+	uint16_t startx = (camw - Image_Wide) / 2;		//	(160-128)/2 = 16			//这里不是用作消影，而是用作横竖屏的画面居中
 
-	LCD_Address_Set(0, 0, LCD_W - 1, 119);		//	开一个 128 x 160 的窗口
+	LCD_Address_Set(0, 0, Image_Wide - 1, 119);		//	开一个 128 x 160 的窗口
 
 	for (y = 0; y < 120; y++)
 	{
-		for (x = 0; x < LCD_W; x++)
+		for (x = 0; x < Image_Wide; x++)
 		{
 			p = Image[y * camw + startx + x];
 #if OV7670_SWAP_BYTES
@@ -838,32 +839,18 @@ void LCD_ShowOV7670PIC(uint16_t *Image)
 	}
 }
 
-/*==========================================================================
-	显示 8 位灰度/二值图像（0 = 黑，255 = 白）
-
-	★ 原来只显示半边的原因：
-	  ST7735 在 LCD_Init() 里设成 0x3A = 0x05（65K 色，16 位/像素），
-	  也就是说「一个像素必须写 2 个字节」。
-	  原来这里用的是 LCD_WR_DATA8(p)，每个像素只发了 1 个字节，
-	  128*120 = 15360 个字节只够填 15360/2 = 7680 个像素 = 60 行，
-	  所以只有上半屏有东西，下半屏还是上一次的内容；
-	  而且两个相邻的像素被拼成了同一个 RGB565 颜色（高字节=左边那个点、
-	  低字节=右边那个点），看起来就是"有重复的块"。
-
-	★ 正确做法：把 8 位灰度扩展成 16 位 RGB565 颜色，再用 LCD_WR_DATA 发。
-==========================================================================*/
 void LCD_ShowOV7670GrayPIC(uint8_t *Image)
 {
 	uint16_t x, y;
 	uint16_t v, p;
 	uint16_t camw = 160;						//	摄像头输出宽度 QQVGA=160
-	uint16_t startx = (camw - LCD_W) / 2;		//	(160-128)/2 = 16
+	uint16_t startx = (camw - Image_Wide) / 2;		//	(160-128)/2 = 16
 
-	LCD_Address_Set(0, 0, LCD_W - 1, 119);		//	128 x 120 窗口
+	LCD_Address_Set(0, 0, Image_Wide - 1, Image_Length - 1);		//	128 x 120 窗口
 
-	for (y = 0; y < 120; y++)
+	for (y = 0; y < Image_Length; y++)
 	{
-		for (x = 0; x < LCD_W; x++)
+		for (x = 0; x < Image_Wide; x++)
 		{
 			v = Image[y * camw + startx + x];	//	0 或 255
 
@@ -877,8 +864,30 @@ void LCD_ShowOV7670GrayPIC(uint8_t *Image)
 	}
 }
 
+extern uint8_t Image[Image_Wide][Image_Length];
+void LCD_ShowOV7670GrayPIC2()
+{
+	uint16_t x, y;
+	uint16_t v, p;
+
+	LCD_Address_Set(0, 0, Image_Length - 1, Image_Wide - 1);		//	160 x 120 窗口
+
+	for (x = 0; x < Image_Wide; x++)
+	{
+		for (y = 0; y < Image_Length; y++)
+		{
+			v = Image[x][y];
+			p = (uint16_t)(((v >> 3) << 11) | ((v >> 2) << 5) | (v >> 3));
+
+			LCD_WR_DATA(p);						//	16 位，2 个字节
+		}
+	}
+}
+
+
 void LCD_Proc()
 {
 	LCD_Init();
-	LCD_Fill(0, 0, LCD_W, LCD_H, BLACK);
+	LCD_Fill(0, 0, 160, 128, BLACK);
 }
+

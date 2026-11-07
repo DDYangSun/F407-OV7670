@@ -38,3 +38,4 @@
 .\objects\lcd.o: D:\KEIL\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\lcd.o: Hardware\lcdfont.h
 .\objects\lcd.o: .\System\Delay.h
+.\objects\lcd.o: Hardware\ImageElement.h

@@ -7,6 +7,7 @@
 #include "Serial.h"
 #include "Timer3.h"
 #include "ImageBinaryzation.h"
+#include "ImageElement.h"
 #include "stm32f4xx_conf.h"
 
 /*	1 = 显示 8 位灰度图（能看清画面明暗、判断阈值切得合不合适）
@@ -27,6 +28,7 @@ volatile uint8_t LCD_ShowReady = 0;	//等第一帧到了再显示
 
 uint8_t NowReadNum;			//现在读取哪一个RGB565的数组
 
+
 int main(void)
 {
 	uint8_t threshold;
@@ -44,21 +46,19 @@ int main(void)
 		{
 			LCD_ShowReady = 0;
 
-			/*	只做分析：灰度化 + 直方图 + 峰谷 + 大津，返回这一帧的阈值。
-				注意 ImageAnalyze() 不会改 GrayImage 的像素值，
-				所以这时缓冲区里还是完整的 8 位灰度图。				*/
+			//二值化
 			if (NowReadNum == 0)
-				threshold = ImageAnalyze(QQVGA_Frame,GrayImage,120 * 160,PixelValueNum,256);
+				threshold = Image_GetThereshold(QQVGA_Frame,GrayImage,120 * 160,PixelValueNum,256);
 			else
-				threshold = ImageAnalyze(QQVGA_Frame1,GrayImage,120 * 160,PixelValueNum,256);
+				threshold = Image_GetThereshold(QQVGA_Frame1,GrayImage,120 * 160,PixelValueNum,256);
 
-#if SHOW_GRAY_IMAGE
-			LCD_ShowOV7670GrayPIC(GrayImage);					//先显示灰度图
-			ImageBinarize(GrayImage,120 * 160,threshold);		//需要二值结果时再就地二值化
-#else
-			ImageBinarize(GrayImage,120 * 160,threshold);		//先二值化
-			LCD_ShowOV7670GrayPIC(GrayImage);					//再显示二值图
-#endif
+			ImageBinaryzation(GrayImage,120 * 160,&threshold);
+
+			//一维转二维数组显示
+			Image_DimensionChange(GrayImage);
+			FindLine();
+			LCD_ShowOV7670GrayPIC2();					//再显示二值图
+
 			Camera_FPS++;
 		}
 	}

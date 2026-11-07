@@ -1,6 +1,7 @@
 #include "stm32f4xx.h"
 #include "stdlib.h"
 #include "ImageBinaryzation.h"
+#include <math.h>
 
 /*	二值化阈值的来源：
 		0 = 峰谷法（你自己写的那套：找最高峰、第二高峰，取中间的谷）
@@ -11,6 +12,7 @@
 uint8_t  TopPosition,Top2Position,ValleyPos,OtsuPos;
 uint16_t TopNumber,Top2Number,ValleyNum;
 
+/*******************************求阈值前图像处理******************************* */
 //RGB565（16bit色彩）转8位灰度（亮度）
 void ChangeGray(uint16_t *RGB565Image,uint16_t Length,uint8_t *GrayImage)
 {
@@ -48,6 +50,7 @@ void DrawPixelChart(uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum)
 	}
 }
 
+/************************************峰谷法*************************************** */
 //计算最高峰的位置和数量
 void CalTop_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *TopPosition,uint16_t *TopNumber)
 {
@@ -133,7 +136,7 @@ void CalTop2_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *Top2Positio
 	原版：当第二高峰和最高峰重合/相邻时（例如全图只有一种灰度），
 	循环只走一次，ValleyPos_Temp 保持初值 0，阈值直接变成 0，画面全白。
 	这里先把 lo/hi 规范化，并在"两峰太近、根本没有谷"时给出兜底值。		*/
-void CalValley_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *ValleyPos,uint16_t *ValleyNum,
+uint8_t CalValley_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *ValleyPos,uint16_t *ValleyNum,
 						uint8_t *TopPosition,uint8_t *Top2Position)
 {
 	uint8_t  lo,hi,ValleyPos_Temp;
@@ -167,11 +170,69 @@ void CalValley_PosNum(uint16_t *PixelValueNum,uint16_t Length,uint8_t *ValleyPos
 
 	*ValleyPos = ValleyPos_Temp;
 	*ValleyNum = ValleyNum_Temp;
+
+	return *ValleyPos;
 }
 
+
+/*******************************大津法****************************************** */
 /*	大津法（Otsu）：遍历 0~255 每个阈值，算"类间方差"，
 	方差最大的那个阈值就是最能把画面分成两堆的位置。
 	直接用已经统计好的直方图，只有 256 次循环，开销可以忽略。		*/
+uint8_t Otsu_GetThreshold(uint8_t *GrayImage)
+{
+	uint8_t Otsu_Threshold = 0;
+	float Threshold_BackgroundNum = 0,Thereshold_ForegroundNum = 0;				//前景背景的像素数量
+	float Threshold_BackgroundSum = 0,Threshold_ForegroundSum,GraySum = 0;		//灰度值
+	float w0,w1,u0,u1,ut;
+	uint16_t PixelNum = 0;										//像素总数量
+	float Variance = 0,Variance_Temp = 0;						//方差
+
+	uint16_t i,j;
+	for (i = 0;i < 256;i++)
+	{
+		GraySum += GrayImage[i] * i;				//计算像素灰度值之和，用于求全局平均灰度
+		PixelNum += GrayImage[i];		//计算像素数量之和
+	}
+
+	for (i = 0;i < 256;i++)
+	{
+		for (j = 0;j < 256;j++)
+		{
+			if (j < i)
+			{
+				Threshold_BackgroundNum += GrayImage[j];			//计算背景灰度值数量之和，用于计算背景权重
+				Threshold_BackgroundSum += GrayImage[j] * j;
+			}
+			else
+			{
+				Thereshold_ForegroundNum += GrayImage[j];			//计算前景灰度值数量之和，用于计算前景权重				
+				Threshold_ForegroundSum += GrayImage[j] * j;
+			}
+
+		}
+		w0 = Threshold_BackgroundNum / PixelNum;
+		w1 = 1 - w0;	
+
+		u0 = Threshold_BackgroundSum / Threshold_BackgroundNum;
+		u1 = Threshold_ForegroundSum / Thereshold_ForegroundNum;
+		ut = GraySum / (Threshold_BackgroundNum + Thereshold_ForegroundNum);
+
+		Variance_Temp = w0 * pow((u0 - ut) , 2) + w1 * pow((u1 - ut) , 2);
+
+		if (Variance_Temp > Variance)
+		{
+			Otsu_Threshold = i;
+			Variance = Variance_Temp;
+		}
+
+		Threshold_BackgroundNum = Thereshold_ForegroundNum = Threshold_BackgroundSum = Threshold_ForegroundSum = 0;
+	}
+
+	return Otsu_Threshold;
+}
+
+/*
 uint8_t Otsu_Threshold(uint16_t *PixelValueNum,uint16_t Length)
 {
 	uint32_t total = 0,wB = 0,wF;
@@ -212,7 +273,7 @@ uint8_t Otsu_Threshold(uint16_t *PixelValueNum,uint16_t Length)
 	}
 	return best;
 }
-
+*/
 //二值化
 void ImageBinaryzation(uint8_t *GrayImage,uint16_t Length,uint8_t *Threshold)
 {
@@ -233,36 +294,28 @@ void ImageBinaryzation(uint8_t *GrayImage,uint16_t Length,uint8_t *Threshold)
 	param3:像素值数量图表数组
 	param4:像素值数量图表数组长度
 */
-/*	只做分析：灰度化 + 直方图 + 峰谷 + 大津，返回这一帧算出来的阈值。
-	它不会修改 GrayImage 里的像素值（仍然是 8 位灰度），
-	所以可以在二值化之前先把灰度图显示出来。						*/
-uint8_t ImageAnalyze(uint16_t *RGB565Image,uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
+
+uint8_t Image_GetThereshold(uint16_t *RGB565Image,uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
 {
-	ChangeGray(RGB565Image,Length,GrayImage);
+	uint8_t threshold;
+
+	#define BeforeTheresholdImageDeal		1	//0：关闭求阈值前图像处理		1：开启求阈值前图像处理
+	#define Method		1						//0：峰谷法					   1：大津法
+
+	#if BeforeTheresholdImageDeal
+	//求阈值前图像处理，若不需要将BeforeTheresholdImageDeal置0
+		ChangeGray(RGB565Image,Length,GrayImage);
+	#endif
+	
 	DrawPixelChart(GrayImage,Length,PixelValueNum);
 
-	CalTop_PosNum (PixelValueNum,Length1,&TopPosition ,&TopNumber);
-	CalTop2_PosNum(PixelValueNum,Length1,&Top2Position,&Top2Number);
-	CalValley_PosNum(PixelValueNum,Length1,&ValleyPos,&ValleyNum,&TopPosition,&Top2Position);
+	#if Method
+		threshold = Otsu_GetThreshold(GrayImage);
+	#else
+		CalTop_PosNum(PixelValueNum,Length1,&TopPosition ,&TopNumber);
+		CalTop2_PosNum(PixelValueNum,Length1,&Top2Position,&Top2Number);
+		threshold = CalValley_PosNum(PixelValueNum,Length1,&ValleyPos,&ValleyNum,&TopPosition,&Top2Position);
+	#endif
 
-	OtsuPos = Otsu_Threshold(PixelValueNum,Length1);
-
-#if USE_OTSU_THRESHOLD
-	return OtsuPos;			//大津法
-#else
-	return ValleyPos;		//峰谷法
-#endif
-}
-
-/*	按阈值就地二值化：小于阈值变 0（黑），否则 255（白）		*/
-void ImageBinarize(uint8_t *GrayImage,uint16_t Length,uint8_t Threshold)
-{
-	ImageBinaryzation(GrayImage,Length,&Threshold);
-}
-
-/*	一次性完成：分析 + 二值化（原来的接口，保持兼容）		*/
-void ImageProcess(uint16_t *RGB565Image,uint8_t *GrayImage,uint16_t Length,uint16_t *PixelValueNum,uint16_t Length1)
-{
-	uint8_t threshold = ImageAnalyze(RGB565Image,GrayImage,Length,PixelValueNum,Length1);
-	ImageBinarize(GrayImage,Length,threshold);
+	return threshold;
 }

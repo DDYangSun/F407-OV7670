@@ -1,0 +1,31 @@
+{
+    "// 说明": "本工程源码是 GBK 编码（Keil 的默认 ANSI），VSCode 默认按 UTF-8 打开会显示乱码，保存时还会把中文注释写坏。下面两行让 VSCode 按 GBK 读写并自动识别编码。",
+    "files.encoding": "gbk",
+    "files.autoGuessEncoding": true,
+    "files.eol": "\r\n",
+    "files.associations": {
+        "*.h": "c",
+        "*.uvprojx": "xml",
+        "*.uvoptx": "xml",
+        "*.uvguix": "xml",
+        "*.s": "arm"
+    },
+    "C_Cpp.default.cStandard": "c99",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/User",
+        "${workspaceFolder}/Library",
+        "${workspaceFolder}/Start",
+        "${workspaceFolder}/System",
+        "${workspaceFolder}/Hardware",
+        "D:/KEIL/ARM/ARMCC/include",
+        "D:/KEIL/ARM/ARMCC/include/rw"
+    ],
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.errorSquiggles": "enabled",
+    "search.exclude": {
+        "**/Objects": true,
+        "**/Listings": true,
+        "**/_dsh_fix": true,
+        "**/*.map": true
+    }
+}

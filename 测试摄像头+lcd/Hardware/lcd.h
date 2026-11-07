@@ -7,7 +7,7 @@
 /**********************BEGIN***********************/
 
 //----------------OLED�˿ڶ���----------------- 
-/***************�����Լ��������****************/
+/***************�����Լ��������?***************/
 #define LCD_SCL_GPIO_PORT				GPIOB
 #define LCD_SCL_GPIO_PIN				GPIO_Pin_13
 				
@@ -51,15 +51,6 @@
 #define USE_HORIZONTAL 2  //���ú�������������ʾ 0��1Ϊ���� 2��3Ϊ����
 
 
-#if USE_HORIZONTAL==0||USE_HORIZONTAL==1
-#define LCD_W 128
-#define LCD_H 160
-
-#else
-#define LCD_W 160
-#define LCD_H 128
-#endif
-
 //������ɫ
 #define WHITE         	 0xFFFF
 #define BLACK         	 0x0000	  
@@ -80,7 +71,7 @@
 #define GRAYBLUE       	 0X5458 //����ɫ
 #define LIGHTGREEN     	 0X841F //ǳ��ɫ
 #define LGRAY 			     0XC618 //ǳ��ɫ(PANNEL),���屳��ɫ
-#define LGRAYBLUE        0XA651 //ǳ����ɫ(�м����ɫ)
+#define LGRAYBLUE        0XA651 //ǳ����ɫ(�м�����?
 #define LBBLUE           0X2B12 //ǳ����ɫ(ѡ����Ŀ�ķ�ɫ)
 
 void LCD_GPIO_Init(void);//��ʼ��GPIO
@@ -89,10 +80,13 @@ void LCD_WR_DATA8(u8 dat);//д��һ���ֽ�
 void LCD_WR_DATA(u16 dat);//д�������ֽ�
 void LCD_WR_REG(u8 dat);//д��һ��ָ��
 void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);//�������꺯��
-void LCD_Init(void);//LCD��ʼ��
+void LCD_Init(void);
+void LCD_Proc(void);
+void LCD_SelfTest(void);
+//LCD��ʼ��
 
 
-void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color);//ָ�����������ɫ
+void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color);//ָ������������?
 void LCD_DrawPoint(u16 x,u16 y,u16 color);//��ָ��λ�û�һ����
 void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color);//��ָ��λ�û�һ����
 void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color);//��ָ��λ�û�һ������
@@ -113,6 +107,7 @@ void LCD_ShowFloatNum1(u16 x,u16 y,float num,u8 len,u16 fc,u16 bc,u8 sizey);//�
 void LCD_ShowPicture(u16 x,u16 y,u16 length,u16 width,const u8 pic[]);//��ʾͼƬ
 void LCD_ShowOV7670PIC(uint16_t *Image);
 void LCD_ShowOV7670GrayPIC(uint8_t *Image);
+void LCD_ShowOV7670GrayPIC2(void);
 void LCD_Proc(void);
 
 

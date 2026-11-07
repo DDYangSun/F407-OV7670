@@ -945,6 +945,16 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\ImageBinaryzation.h</FilePath>
             </File>
+            <File>
+              <FileName>ImageElement.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\ImageElement.c</FilePath>
+            </File>
+            <File>
+              <FileName>ImageElement.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\ImageElement.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

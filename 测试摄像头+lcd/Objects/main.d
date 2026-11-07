@@ -44,3 +44,4 @@
 .\objects\main.o: D:\KEIL\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: .\Hardware\Timer3.h
 .\objects\main.o: .\Hardware\ImageBinaryzation.h
+.\objects\main.o: .\Hardware\ImageElement.h
